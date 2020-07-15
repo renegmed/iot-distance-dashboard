@@ -1,0 +1,10 @@
+Status: WIP
+
+
+gin/html
+websocket
+file as db
+mqtt/pentaho client
+rest api 
+
+
