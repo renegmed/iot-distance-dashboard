@@ -4,6 +4,7 @@
         <title>Stations Monitoring System</title>
     </head>
     <body>
+        
         <table>
             <tr>
                 <div>
@@ -12,6 +13,11 @@
             </tr>             
         </table>
         <table>
+            <tr>
+                <div>
+                    <label>Red Blink:</label><span col="10" id="red-blink"></span>
+                </div> 
+            </tr>
             <tr>
                 <div>
                     <label>Red:</label><span col="10" id="red"></span>
@@ -47,6 +53,7 @@
                     console.log(data[0]);
                     console.log(data[1]);
                     document.getElementById("station").innerHTML = data[0];
+                    document.getElementById("red-blink").innerHTML = "OFF";
                     document.getElementById("red").innerHTML = "OFF";
                     document.getElementById("green").innerHTML = "OFF";
                     document.getElementById("yellow").innerHTML = "OFF";

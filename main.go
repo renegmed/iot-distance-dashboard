@@ -112,11 +112,13 @@ func convertDistanceToColor(distanceData string) (string, error) {
 	}
 
 	switch {
-	case val >= 0 && val < 20:
+	case val >= 0 && val <= 2:
+		return "red-blink", nil
+	case val > 2 && val <= 5:
 		return "red", nil
-	case val >= 20 && val < 40:
+	case val > 5 && val < 50:
 		return "yellow", nil
-	case val >= 40:
+	case val >= 50:
 		return "green", nil
 	}
 
