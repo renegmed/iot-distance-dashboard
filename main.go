@@ -32,7 +32,6 @@ const BROKER = "tcp://localhost:1883"
 var (
 	addr = flag.String("addr", ":8080", "http service address")
 )
-var distanceData string
 
 func serveHome(w http.ResponseWriter, r *http.Request) {
 	if r.URL.Path != "/" {
@@ -77,10 +76,11 @@ func distanceSocket(ws *websocket.Conn) {
 		select {
 		case incoming := <-choke:
 			log.Printf("RECEIVED TOPIC: %s MESSAGE: %s\n", incoming[0], incoming[1])
-			color, err := publishMQTTLightOn(incoming[1])
+			color, err := convertDistanceToColor(incoming[1]) //publishMQTTLightOn(incoming[1])
 			if err != nil {
 				log.Println(err)
 			} else {
+				publishMQTTLightOn(color)
 				sendToWebSocket(ws, incoming[1]+" "+color) // distance color value e.g. "25 yellow"
 			}
 		}
@@ -105,39 +105,25 @@ func publishMQTTWithPayload(topic, payload string) {
 		os.Exit(1)
 	}
 }
-
-func publishMQTTLightOn(data string) (string, error) {
-	val, err := strconv.Atoi(data)
+func convertDistanceToColor(distanceData string) (string, error) {
+	val, err := strconv.Atoi(distanceData)
 	if err != nil {
 		return "", err
 	}
-	var color string
+
 	switch {
 	case val >= 0 && val < 20:
-		color = "red"
+		return "red", nil
 	case val >= 20 && val < 40:
-		color = "yellow"
+		return "yellow", nil
 	case val >= 40:
-		color = "green"
+		return "green", nil
 	}
 
-	publishMQTTWithPayload(LIGHT_ON_TOPIC, color)
-
-	return color, nil
+	return "", fmt.Errorf("Value %s is out of range", distanceData)
 }
-
-func lightOnSocket(ws *websocket.Conn) {
-	choke := make(chan [2]string)
-
-	subscribeMQTT(choke, LIGHT_ON_TOPIC)
-
-	for {
-		select {
-		case incoming := <-choke:
-			log.Printf("RECEIVED TOPIC: %s MESSAGE: %s\n", incoming[0], incoming[1])
-			sendToWebSocket(ws, incoming[1])
-		}
-	}
+func publishMQTTLightOn(data string) {
+	publishMQTTWithPayload(LIGHT_ON_TOPIC, data)
 }
 
 func sendToWebSocket(ws *websocket.Conn, data string) {
@@ -147,7 +133,6 @@ func sendToWebSocket(ws *websocket.Conn, data string) {
 func main() {
 	http.HandleFunc("/", serveHome)
 	http.Handle("/wsdistance", websocket.Handler(distanceSocket))
-	http.Handle("/wslighton", websocket.Handler(lightOnSocket))
 	if err := http.ListenAndServe(*addr, nil); err != nil {
 		log.Fatal(err)
 	}

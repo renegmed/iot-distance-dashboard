@@ -4,11 +4,32 @@
         <title>Stations Monitoring System</title>
     </head>
     <body>
-        <div id="station"></div>
+        <table>
+            <tr>
+                <div>
+                    <label>Distance:</label><span col="10" id="station"></span>
+                </div> 
+            </tr>             
+        </table>
+        <table>
+            <tr>
+                <div>
+                    <label>Red:</label><span col="10" id="red"></span>
+                </div> 
+            </tr>
+            <tr>
+                <div>
+                    <label>Green:</label><span col="10" id="green"></span>
+                </div> 
+            </tr>
+            <tr>
+                <div>
+                    <label>Yellow:</label><span col="10" id="yellow"></span>
+                </div> 
+            </tr>             
+        </table>
+        
 
-        <label>Red:</label><div span="20" id="red"></div>
-        <label>Green:</label><div span="20" id="green"></div>
-        <label>Yellow:</label><div span="20" id="yellow"></div>
         
         <script type="text/javascript">
             var sockTime = null;
@@ -21,24 +42,17 @@
                
                 sockDistance = new WebSocket(wsServerAddress + "/wsdistance");
                 sockDistance.onmessage = function(e) { 
-                    document.getElementById("station").innerHTML = e.data;
+                   
                     data = e.data.split(" ");
                     console.log(data[0]);
                     console.log(data[1]);
+                    document.getElementById("station").innerHTML = data[0];
                     document.getElementById("red").innerHTML = "OFF";
                     document.getElementById("green").innerHTML = "OFF";
                     document.getElementById("yellow").innerHTML = "OFF";
                     color = data[1]
                     document.getElementById(color).innerHTML = "ON";
-                } 
-                sockLightOn = new WebSocket(wsServerAddress + "/wslighton");
-                sockLightOn.onmessage = function(e) { 
-                    document.getElementById("red").innerHTML = "OFF";
-                    document.getElementById("green").innerHTML = "OFF";
-                    document.getElementById("yellow").innerHTML = "OFF";
-                    color = e.data
-                    document.getElementById(color).innerHTML = "ON";
-                } 
+                }  
             }
        
         </script>
