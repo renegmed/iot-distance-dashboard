@@ -25,8 +25,10 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-const DISTANCE_TOPIC = "Distance.Station.1"
-const LIGHT_ON_TOPIC = "Light.On.Station.1"
+const DISTANCE_TOPIC_STATION_1 = "Distance.Station.1"
+const DISTANCE_TOPIC_STATION_2 = "Distance.Station.2"
+const LIGHT_ON_TOPIC_STATION_1 = "Light.On.Station.1"
+const LIGHT_ON_TOPIC_STATION_2 = "Light.On.Station.2"
 const BROKER = "tcp://localhost:1883"
 
 var (
@@ -70,7 +72,10 @@ func distanceSocket(ws *websocket.Conn) {
 
 	choke := make(chan [2]string)
 
-	subscribeMQTT(choke, DISTANCE_TOPIC)
+	subscribeMQTT(choke, DISTANCE_TOPIC_STATION_1)
+	subscribeMQTT(choke, DISTANCE_TOPIC_STATION_2)
+
+	station := "station-1"
 
 	for {
 		select {
@@ -81,7 +86,7 @@ func distanceSocket(ws *websocket.Conn) {
 				log.Println(err)
 			} else {
 				publishMQTTLightOn(color)
-				sendToWebSocket(ws, incoming[1]+" "+color) // distance color value e.g. "25 yellow"
+				sendToWebSocket(ws, incoming[1]+" "+color+" "+station) // distance color value e.g. "25 yellow"
 			}
 		}
 	}
@@ -125,7 +130,7 @@ func convertDistanceToColor(distanceData string) (string, error) {
 	return "", fmt.Errorf("Value %s is out of range", distanceData)
 }
 func publishMQTTLightOn(data string) {
-	publishMQTTWithPayload(LIGHT_ON_TOPIC, data)
+	publishMQTTWithPayload(LIGHT_ON_TOPIC_STATION_1, data)
 }
 
 func sendToWebSocket(ws *websocket.Conn, data string) {

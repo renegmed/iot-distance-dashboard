@@ -11,4 +11,4 @@ This app:
 	2. Pushes the distance data to a web page using websocket
 	3. Based on the distance, this app determines what color of light to turn on
 	4. Using MQTT broker, the app sends and publishes message to LED lights which color to turn on
-    5. Finally, the app displays, on the web page ,the turned-on light.
+    5. Finally, the app displays graphically car in the process of parking in or parking out.
