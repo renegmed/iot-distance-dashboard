@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <title>Stations Monitoring System</title>
+        <title>Parking Stations Monitoring System</title>
     </head>
     <body>
         
@@ -12,41 +12,9 @@
                 </div> 
             </tr>             
         </table>
+     
         <table>
-            <tr>
-                <div>
-                    <label>Station 1 Red Blink:</label><span col="10" id="red-blink-station-1"></span>
-                </div> 
-            </tr>
-            <tr>
-                <div>
-                    <label>Station 1 Red:</label><span col="10" id="red-station-1"></span>
-                </div> 
-            </tr>
-            <tr>
-                <div>
-                    <label>Station 1 Green:</label><span col="10" id="green-station-1"></span>
-                </div> 
-            </tr>
-            <tr>
-                <div>
-                    <label>Station 1 Yellow:</label><span col="10" id="yellow-station-1"></span>
-                </div> 
-            </tr>             
-        </table>
-        <!-- 
-        <table>
-            <tr>
-                 
-                    <img src="/assets/parking.svg" class="image" style="width: 500px; height: 300px;"/>
-              
-            </tr>
-        </table>
-    -->
-        <table>
-            <tr>
-                 
-                    
+            <tr>                     
 <svg
 xmlns:dc="http://purl.org/dc/elements/1.1/"
 xmlns:cc="http://creativecommons.org/ns#"
@@ -56,8 +24,8 @@ xmlns="http://www.w3.org/2000/svg"
 xmlns:xlink="http://www.w3.org/1999/xlink"
 xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
 xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-width="210mm"
-height="297mm"
+width="420mm"
+height="500mm"
 viewBox="0 0 210 297"
 version="1.1"
 id="svg8"
@@ -598,7 +566,45 @@ sodipodi:docname="parking.svg">
       id="path1281"
       inkscape:connector-curvature="0"
       style="fill:none;stroke:#000000;stroke-width:1.625;stroke-opacity:0.52419003" />
- </g>
+ </g>  
+ <circle 
+ style="fill:#ffffff;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"  
+ id="red-station-1"
+ cx="55.124477"
+ cy="13.9615"
+ r="1.1245"
+ inkscape:label="#path4157" />
+<circle
+ style="fill:#ffffff;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+ id="yellow-station-1"
+ cx="59.1245"
+ cy="13.9615"
+ r="1.1245"
+ inkscape:label="#path4333" />
+<circle
+ style="fill:#ffffff;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+ id="green-station-1"
+ cx="63.1245"
+ cy="13.9615"
+ r="1.1245" />
+<circle
+style="fill:#ffffff;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"  
+ id="red-station-2"
+ cx="95.151497"
+ cy="13.9615"
+ r="1.0916356" />
+<circle
+ style="fill:#ffffff;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+ id="yellow-station-2"
+ cx="99.151497"
+ cy="13.9615"
+ r="1.0930746" />
+<circle
+style="fill:#ffffff;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+ id="green-station-2"
+ cx="103.1515"
+ cy="13.9615"
+ r="1.0981398" />
 </g>
 </svg>
               
@@ -611,6 +617,7 @@ sodipodi:docname="parking.svg">
 
             var station = document.getElementById("station-1");
  
+            const offsetDistance = 18.8822; // min distance between car and distance sensor
 
             window.onload = function() {
                 
@@ -618,49 +625,109 @@ sodipodi:docname="parking.svg">
                 sockDistance.onmessage = function(e) { 
                    
                     data = e.data.split(" ");
-                    console.log(data[0]);
-                    console.log(data[1]);
-                    console.log(data[2]);
+                    console.log(data[0]);  // distance
+                    console.log(data[1]);  // color
+                    console.log(data[2]);  // station
                     document.getElementById(data[2]).innerHTML = data[0];
-                    document.getElementById("red-blink-" + data[2]).innerHTML = "OFF";
-                    document.getElementById("red-" + data[2]).innerHTML = "OFF";
-                    document.getElementById("green-" + data[2]).innerHTML = "OFF";
-                    document.getElementById("yellow-" + data[2]).innerHTML = "OFF";
-                    color = data[1] + "-" + data[2];
-                    document.getElementById(color).innerHTML = "ON";
+                   
+                    color = data[1] + "-" + data[2];  // color + station
+                   
+                    station1Node = document.getElementById("g316") 
 
-                    yellowCar = document.getElementById("g316")
+                    station_1_distance = parseInt(data[0]); 
+                    
+                    station1CarDistance = offsetDistance + station_1_distance; 
 
-                    //console.log(yellowCar); 
-
-                    distance = parseInt(data[0]); 
-                    offsetDistance = 18.8822; // min distance between car and distance sensor
-
-                    yellowCarDistance = offsetDistance + distance; 
-
-                    //console.log("yellowCarDistance", yellowCarDistance)
-
+                    //console.log("station1CarDistance", station1CarDistance)
                     //console.log('transform="matrix(0.05630873,0,0,0.05496872,50.488899,18.8822)"');
                     
-                    transformAttrValue = "matrix(0.05630873,0,0,0.05496872,50.488899,"+yellowCarDistance.toString()+")";
+                    transformAttrValue = "matrix(0.05630873,0,0,0.05496872,50.488899,"+station1CarDistance.toString()+")";
                     
                     console.log(transformAttrValue);
                     
                     transformAttr = document.createAttribute("transform");
                     transformAttr.value = transformAttrValue;
-                    yellowCar.setAttributeNode(transformAttr);
+                    station1Node.setAttributeNode(transformAttr);
 
                     transformAttr = document.createAttribute("visibility");
-                    if (distance > 50) { // car too far for distance sensor                       
+                    if (station_1_distance > 50) { // car too far for distance sensor                       
                         transformAttr.value = "hidden";
-                        yellowCar.setAttributeNode(transformAttr);
+                        station1Node.setAttributeNode(transformAttr);
                     } else {
                         transformAttr.value = "visible";
-                        yellowCar.setAttributeNode(transformAttr);
+                        station1Node.setAttributeNode(transformAttr);
                     } 
+
+                    //////// color lights /////////////
+
+                    clearColorStation1();
+
+                    let styleAttrValue = "fill:#000000;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"  
+                    let fill = "#000000"
+                    
+                    if (color ==="red-blink-station-1" || color === "red-blink-station-2") {
+                        fill = "#ff0000";  
+                    }                    
+
+                    if (color ==="red-station-1" || color === "red-station-2") {
+                        fill = "#ff0000";                        
+                    }
+                    
+                    if (color ==="yellow-station-1" || color === "yellow-station-2") {
+                        fill = "#ffe680";                        
+                    }
+
+                    if (color ==="green-station-1" || color === "green-station-2") {
+                        fill = "#00ff00";                        
+                    }
+
+                    //console.log("+++ Color station:", color) 
+
+                    styleAttrValue = "fill:" + fill + ";stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1";
+                    
+                    //console.log("+++ Fill:\n", styleAttrValue);
+
+                    styleAttr = document.createAttribute("style");
+                    styleAttr.value = styleAttrValue;
+                    
+
+                    if (color ==="red-blink-station-1" ) {
+                       color = "red-station-1";                
+                    }
+
+                    if (color === "red-blink-station-2") {
+                       color = "red-station-2";                
+                    } 
+             
+                    colorNode = document.getElementById(color)  
+                    colorNode.setAttributeNode(styleAttr);
                 }  
             }
        
+            clearColorStation1 = function() {                
+                colorNode = document.getElementById("red-station-1")
+                clearColor(colorNode);
+                colorNode = document.getElementById("yellow-station-1")
+                clearColor(colorNode);
+                colorNode = document.getElementById("green-station-1")
+                clearColor(colorNode);                
+            }
+
+            clearColorStation2 = function() {                
+                colorNode = document.getElementById("red-station-2")
+                clearColor(colorNode);
+                colorNode = document.getElementById("yellow-station-2")
+                clearColor(colorNode);
+                colorNode = document.getElementById("green-station-2")
+                clearColor(colorNode);                
+            }
+
+            clearColor = function(colorNode) {
+                let styleAttrValue = "fill:#ffffff;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"  
+                styleAttr = document.createAttribute("style");
+                styleAttr.value = styleAttrValue;
+                colorNode.setAttributeNode(styleAttr);
+            }
         </script>
     </body>
 </html>
