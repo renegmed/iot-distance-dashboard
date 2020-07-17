@@ -568,39 +568,53 @@ sodipodi:docname="parking.svg">
       style="fill:none;stroke:#000000;stroke-width:1.625;stroke-opacity:0.52419003" />
  </g>  
  <circle 
- style="fill:#ffffff;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"  
+ fill="#ffffff"
+ style="stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"  
  id="red-station-1"
  cx="55.124477"
  cy="13.9615"
  r="1.1245"
- inkscape:label="#path4157" />
+ inkscape:label="#path4157" > 
+  <animate 
+     id="red-blink-station-1" 
+     attributeName=""
+     values="#ff0000;#ffffff"
+     dur="0.0s"
+     repeatCount="0"
+  />
+</circle>
 <circle
- style="fill:#ffffff;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+ fill="#ffffff"
+ style="stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
  id="yellow-station-1"
  cx="59.1245"
  cy="13.9615"
  r="1.1245"
  inkscape:label="#path4333" />
 <circle
- style="fill:#ffffff;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+ fill="#ffffff"
+ style="stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
  id="green-station-1"
  cx="63.1245"
  cy="13.9615"
  r="1.1245" />
 <circle
-style="fill:#ffffff;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"  
+ fill="#ffffff"
+ style="stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"  
  id="red-station-2"
  cx="95.151497"
  cy="13.9615"
  r="1.0916356" />
 <circle
- style="fill:#ffffff;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+ fill="#ffffff"
+ style="stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
  id="yellow-station-2"
  cx="99.151497"
  cy="13.9615"
  r="1.0930746" />
 <circle
-style="fill:#ffffff;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+ fill="#ffffff"
+ style="stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
  id="green-station-2"
  cx="103.1515"
  cy="13.9615"
@@ -614,7 +628,6 @@ style="fill:#ffffff;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-d
         <script type="text/javascript">
             var sockTime = null;
             var wsServerAddress = "ws://localhost:8080";
-
             var station = document.getElementById("station-1");
  
             const offsetDistance = 18.8822; // min distance between car and distance sensor
@@ -630,20 +643,21 @@ style="fill:#ffffff;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-d
                     console.log(data[2]);  // station
                     document.getElementById(data[2]).innerHTML = data[0];
                    
-                    color = data[1] + "-" + data[2];  // color + station
+                    // red-blink and red shares the same svg circle implemented in animate tag
+                    if (data[1] ==="red-blink") {
+                        color = "red" + "-" + data[2];  // color + station
+                    } else {
+                        color = data[1] + "-" + data[2];  // color + station
+                    }
+                   
                    
                     station1Node = document.getElementById("g316") 
 
-                    station_1_distance = parseInt(data[0]); 
-                    
-                    station1CarDistance = offsetDistance + station_1_distance; 
-
-                    //console.log("station1CarDistance", station1CarDistance)
-                    //console.log('transform="matrix(0.05630873,0,0,0.05496872,50.488899,18.8822)"');
-                    
+                    station_1_distance = parseInt(data[0]);                     
+                    station1CarDistance = offsetDistance + station_1_distance;                                      
                     transformAttrValue = "matrix(0.05630873,0,0,0.05496872,50.488899,"+station1CarDistance.toString()+")";
                     
-                    console.log(transformAttrValue);
+                    // console.log(transformAttrValue);
                     
                     transformAttr = document.createAttribute("transform");
                     transformAttr.value = transformAttrValue;
@@ -661,52 +675,59 @@ style="fill:#ffffff;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-d
                     //////// color lights /////////////
 
                     clearColorStation1();
-
-                    let styleAttrValue = "fill:#000000;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"  
-                    let fill = "#000000"
-                    
-                    if (color ==="red-blink-station-1" || color === "red-blink-station-2") {
-                        fill = "#ff0000";  
-                    }                    
-
+ 
                     if (color ==="red-station-1" || color === "red-station-2") {
-                        fill = "#ff0000";                        
+                        fillColor(color,"#ff0000");                                           
                     }
                     
                     if (color ==="yellow-station-1" || color === "yellow-station-2") {
-                        fill = "#ffe680";                        
+                        fillColor(color,"#ffe680");                        
                     }
 
                     if (color ==="green-station-1" || color === "green-station-2") {
-                        fill = "#00ff00";                        
+                        fillColor(color,"#00ff00");                        
                     }
-
-                    //console.log("+++ Color station:", color) 
-
-                    styleAttrValue = "fill:" + fill + ";stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1";
-                    
-                    //console.log("+++ Fill:\n", styleAttrValue);
-
-                    styleAttr = document.createAttribute("style");
-                    styleAttr.value = styleAttrValue;
-                    
-
-                    if (color ==="red-blink-station-1" ) {
-                       color = "red-station-1";                
-                    }
-
-                    if (color === "red-blink-station-2") {
-                       color = "red-station-2";                
-                    } 
-             
-                    colorNode = document.getElementById(color)  
-                    colorNode.setAttributeNode(styleAttr);
+ 
+                    // console.log("++++++ color:", color);
+                    // console.log("++++++ data[1]:", data[1]); 
+       
+                    // received 'red-blink' message that require to blink the 
+                    // red light
+                    if (data[1] ==="red-blink" && color === "red-station-1") { 
+                        fillColor(color,"#ff0000");
+                        redBlink()  
+                    }  
                 }  
             }
+
+            fillColor = function(elem, color) {
+                colorNode = document.getElementById(elem);
+                colorNode.setAttribute("fill", color); 
+
+                console.log("++++Fill Color:", colorNode)
+            }
+
+            redNonBlink = function() {
+                blinkNode = document.getElementById("red-blink-station-1")  
+                blinkNode.setAttribute("attributeName", "");  
+                blinkNode.setAttribute("values","#ff0000;#ff0000");   
+                blinkNode.setAttribute("dur","0.0s");  
+                blinkNode.setAttribute("repeatCount","0"); 
+            }
+
+            redBlink = function() {
+                blinkNode = document.getElementById("red-blink-station-1")  
+                blinkNode.setAttribute("attributeName", "fill");    
+                blinkNode.setAttribute("values","#ff0000;#ffffff");  
+                blinkNode.setAttribute("dur","0.5s");  
+                blinkNode.setAttribute("repeatCount","indefinite");  
+            }
        
-            clearColorStation1 = function() {                
-                colorNode = document.getElementById("red-station-1")
-                clearColor(colorNode);
+            clearColorStation1 = function() {
+                redNonBlink()                
+                colorNode = document.getElementById("red-station-1") 
+                clearColor(colorNode); 
+                
                 colorNode = document.getElementById("yellow-station-1")
                 clearColor(colorNode);
                 colorNode = document.getElementById("green-station-1")
@@ -722,11 +743,8 @@ style="fill:#ffffff;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-d
                 clearColor(colorNode);                
             }
 
-            clearColor = function(colorNode) {
-                let styleAttrValue = "fill:#ffffff;stroke:#000000;stroke-width:0.1;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"  
-                styleAttr = document.createAttribute("style");
-                styleAttr.value = styleAttrValue;
-                colorNode.setAttributeNode(styleAttr);
+            clearColor = function(colorNode) { 
+                colorNode.setAttribute("fill", "#ffffff");
             }
         </script>
     </body>
