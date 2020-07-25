@@ -248,9 +248,12 @@ sodipodi:docname="parking.svg">
       y="12.640274"
       style="stroke-width:0.10577258;fill:#0000ff;">Station 2</tspan></text>
  
-
+  <!-- transform="matrix(0.05630873,0,0,0.05496872,50,20)" visibility="visible" -->  
  <g
-    id="g316" transform="matrix(0.05630873,0,0,0.05496872,50.488899,18.8822)" visibility="hidden" >   
+    id="g316" 
+        transform="matrix(0.05630873,0,0,0.05496872,50,80) rotate(90)" visibility="hidden" >
+        <!--transform="matrix(0.05630873,0,0,0.05496872,50,20) translate(400,40) rotate(30, 0, 0)" visibility="visible" -->   
+       
     <!-- rgm yellow car 18.8822 base point = 2 max 50 + 18.8822 = 71.8822 (visibility = hidden)-->
    <rect
       x="16.287001"
@@ -575,13 +578,13 @@ sodipodi:docname="parking.svg">
  cy="13.9615"
  r="1.1245"
  inkscape:label="#path4157" > 
-  <animate 
+  <!-- <animate 
      id="red-blink-station-1" 
      attributeName=""
      values="#ff0000;#ffffff"
      dur="0.0s"
      repeatCount="0"
-  />
+  /> -->
 </circle>
 <circle
  fill="#ffffff"
@@ -628,123 +631,63 @@ sodipodi:docname="parking.svg">
         <script type="text/javascript">
             var sockTime = null;
             var wsServerAddress = "ws://localhost:8080";
-            var station = document.getElementById("station-1");
+            // var station = document.getElementById("station-1");
  
-            const offsetDistance = 18.8822; // min distance between car and distance sensor
+            //const offsetDistance = 18.8822; // min distance between car and distance sensor
+
+            const hBase = 70;  // max horizontal length of path
+            const vBase = 50;  // max visiblity range for vertical path for this graph
+            const maxRealVDistance = 15; // max sensor 1 distance (realworld) 
+            const vehicleWidth = 36; 
+            const vehicleLength = 36;
+            let lastHDistance=0;
+            let lastVDistance=0;
 
             window.onload = function() {
+                                
+                sockVDistance = new WebSocket(wsServerAddress + "/wsvdistance");
+                sockHDistance = new WebSocket(wsServerAddress + "/wshdistance");
                 
-                sockDistance = new WebSocket(wsServerAddress + "/wsdistance");
-                sockDistance.onmessage = function(e) { 
-                   
-                    data = e.data.split(" ");
-                    console.log(data[0]);  // distance
-                    console.log(data[1]);  // color
-                    console.log(data[2]);  // station
-                    document.getElementById(data[2]).innerHTML = data[0];
-                   
-                    // red-blink and red shares the same svg circle implemented in animate tag
-                    if (data[1] ==="red-blink") {
-                        color = "red" + "-" + data[2];  // color + station
-                    } else {
-                        color = data[1] + "-" + data[2];  // color + station
-                    }
-                   
-                   
-                    station1Node = document.getElementById("g316") 
+                sockVDistance.onmessage = function(e) { 
+                    console.log("sockVDistance: ", e.data); 
+                    distance = e.data;
 
-                    station_1_distance = parseInt(data[0]);                     
-                    station1CarDistance = offsetDistance + station_1_distance;                                      
-                    transformAttrValue = "matrix(0.05630873,0,0,0.05496872,50.488899,"+station1CarDistance.toString()+")";
+                    vehicle = document.getElementById("g316")  
                     
-                    // console.log(transformAttrValue);
+                    transformAttrValue="matrix(0.05630873,0,0,0.05496872," + (hBase-lastHDistance-(vehicleWidth/2)) + "," + (vDistance(distance) + (vehicleLength/2)) + ") "
+                    console.log("+++ transform:", transformAttrValue);
                     
-                    transformAttr = document.createAttribute("transform");
-                    transformAttr.value = transformAttrValue;
-                    station1Node.setAttributeNode(transformAttr);
-
-                    transformAttr = document.createAttribute("visibility");
-                    if (station_1_distance > 50) { // car too far for distance sensor                       
-                        transformAttr.value = "hidden";
-                        station1Node.setAttributeNode(transformAttr);
+                    vehicle.setAttribute("transform", transformAttrValue);  
+                    if (distance > 50) { // car too far for distance sensor                       
+                        vehicle.setAttribute("visibility", "hidden"); 
                     } else {
-                        transformAttr.value = "visible";
-                        station1Node.setAttributeNode(transformAttr);
+                        vehicle.setAttribute("visibility", "visible"); 
+                    }  
+
+                    lastVDistance = distance; 
+                }  
+                
+                sockHDistance.onmessage = function(e) { 
+                    console.log("sockHDistance: ", e.data); 
+                    distance = e.data; 
+                    vehicle = document.getElementById("g316")  
+                    
+                    transformAttrValue="matrix(0.05630873,0,0,0.05496872," + (hBase - distance) + ",80)  rotate(90,0,0)"
+                    console.log("+++ transform:", transformAttrValue);
+                    
+                    vehicle.setAttribute("transform", transformAttrValue);  
+                    if (distance > 70) { // car too far for distance sensor                       
+                        vehicle.setAttribute("visibility", "hidden"); 
+                    } else {
+                        vehicle.setAttribute("visibility", "visible"); 
                     } 
 
-                    //////// color lights /////////////
-
-                    clearColorStation1();
- 
-                    if (color ==="red-station-1" || color === "red-station-2") {
-                        fillColor(color,"#ff0000");                                           
-                    }
-                    
-                    if (color ==="yellow-station-1" || color === "yellow-station-2") {
-                        fillColor(color,"#ffe680");                        
-                    }
-
-                    if (color ==="green-station-1" || color === "green-station-2") {
-                        fillColor(color,"#00ff00");                        
-                    }
- 
-                    // console.log("++++++ color:", color);
-                    // console.log("++++++ data[1]:", data[1]); 
-       
-                    // received 'red-blink' message that require to blink the 
-                    // red light
-                    if (data[1] ==="red-blink" && color === "red-station-1") { 
-                        fillColor(color,"#ff0000");
-                        redBlink()  
-                    }  
+                    lastHDistance = distance; 
                 }  
-            }
+            } 
 
-            fillColor = function(elem, color) {
-                colorNode = document.getElementById(elem);
-                colorNode.setAttribute("fill", color); 
-
-                console.log("++++Fill Color:", colorNode)
-            }
-
-            redNonBlink = function() {
-                blinkNode = document.getElementById("red-blink-station-1")  
-                blinkNode.setAttribute("attributeName", "");  
-                blinkNode.setAttribute("values","#ff0000;#ff0000");   
-                blinkNode.setAttribute("dur","0.0s");  
-                blinkNode.setAttribute("repeatCount","0"); 
-            }
-
-            redBlink = function() {
-                blinkNode = document.getElementById("red-blink-station-1")  
-                blinkNode.setAttribute("attributeName", "fill");    
-                blinkNode.setAttribute("values","#ff0000;#ffffff");  
-                blinkNode.setAttribute("dur","0.5s");  
-                blinkNode.setAttribute("repeatCount","indefinite");  
-            }
-       
-            clearColorStation1 = function() {
-                redNonBlink()                
-                colorNode = document.getElementById("red-station-1") 
-                clearColor(colorNode); 
-                
-                colorNode = document.getElementById("yellow-station-1")
-                clearColor(colorNode);
-                colorNode = document.getElementById("green-station-1")
-                clearColor(colorNode);                
-            }
-
-            clearColorStation2 = function() {                
-                colorNode = document.getElementById("red-station-2")
-                clearColor(colorNode);
-                colorNode = document.getElementById("yellow-station-2")
-                clearColor(colorNode);
-                colorNode = document.getElementById("green-station-2")
-                clearColor(colorNode);                
-            }
-
-            clearColor = function(colorNode) { 
-                colorNode.setAttribute("fill", "#ffffff");
+            vDistance = function(distance) {
+               return (vBase * distance)/ maxRealVDistance;
             }
         </script>
     </body>
