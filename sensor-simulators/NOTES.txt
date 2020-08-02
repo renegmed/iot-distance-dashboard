@@ -1,0 +1,7 @@
+Status: working
+
+Git: https://gist.github.com/atotto/6406c0e579c6cd8c920ba53ba952f0f5 
+
+$> go test . 
+
+
