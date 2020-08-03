@@ -7,8 +7,10 @@ and the web-based dashboard through MQTT broker.
 
 This app:
 
-	1. Receives distance data from distance sensor
+	1. Receives distance data from distance sensors
 	2. Pushes the distance data to a web page using websocket
-	3. Based on the distance, this app determines what color of light to turn on
-	4. Using MQTT broker, the app sends and publishes message to LED lights which color to turn on
-    5. Finally, the app displays graphically car in the process of parking in or parking out.
+	3. Based on the distances of two sensor, this app determines where and how to position the object 
+	4. Using MQTT broker, the app sends and publishes messages, i.e., sensor distances
+    5. Finally, the app displays graphically car in the process of parking in, in real-time (almost)
+
+[![Parking Car]](https://github.com/renegmed/iot-distance-dashboard.git/parkcar_video.mp4)

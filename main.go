@@ -24,6 +24,7 @@ import (
 	"golang.org/x/net/websocket"
 )
 
+const DISTANCE_TOPIC_SENSORS = "Distance.Sensors"
 const DISTANCE_TOPIC_SENSOR_1 = "Distance.Sensor.1"
 const DISTANCE_TOPIC_SENSOR_2 = "Distance.Sensor.2"
 
@@ -68,6 +69,9 @@ func subscribeMQTT(choke chan [2]string, topic string) {
 		os.Exit(1)
 	}
 
+}
+func distanceAllSocket(ws *websocket.Conn) {
+	distanceSocket(ws, DISTANCE_TOPIC_SENSORS, "ALL")
 }
 
 func distanceVSocket(ws *websocket.Conn) {
@@ -157,6 +161,7 @@ func main() {
 	http.HandleFunc("/", serveHome)
 	http.Handle("/wshdistance", websocket.Handler(distanceHSocket))
 	http.Handle("/wsvdistance", websocket.Handler(distanceVSocket))
+	http.Handle("/wsdistance", websocket.Handler(distanceAllSocket))
 
 	log.Printf("Started server %v\n", *addr)
 	if err := http.ListenAndServe(*addr, nil); err != nil {

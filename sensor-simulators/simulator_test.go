@@ -1,6 +1,7 @@
 package test
 
 import (
+	"fmt"
 	"log"
 	"strconv"
 	"testing"
@@ -24,9 +25,6 @@ func TestPublishSubscribe(t *testing.T) {
 
 	opts := MQTT.NewClientOptions()
 	opts.AddBroker(BROKER)
-	//opts.SetClientID(&ID)
-	//opts.SetUsername(*user)
-	//opts.SetPassword(*password)
 	opts.SetCleanSession(CLEAN_SESSION)
 
 	ch := make(chan [2]string)
@@ -38,43 +36,31 @@ func TestPublishSubscribe(t *testing.T) {
 
 	mqtt := cmd.ConfiguredMQTT{*opts, 1}
 
-	htable := map[int]int{0: 70, 1: 60, 2: 50, 3: 40, 4: 30, 5: 20, 6: 10, 7: 5, 8: 0}
-	vtable := map[int]int{9: 15, 10: 12, 11: 9, 12: 6, 13: 3, 14: 1}
-	NUM := 14
-	for i := 0; i <= NUM; i++ {
-
-		if i < 9 {
-			dist, _ := htable[i]
-			//dist :=  70 - (i * 10)
-			sDist := strconv.Itoa(dist)
-			t.Log("Publishing distance", sDist)
-			err := mqtt.Publish("Distance.Sensor.2", sDist)
-			if err != nil {
-				log.Println(err)
-				t.Fail()
-			}
-		} else {
-			dist, _ := vtable[i]
-
-			sDist := strconv.Itoa(dist)
-			t.Log("Publishing distance", sDist)
-			err := mqtt.Publish("Distance.Sensor.1", sDist)
-			if err != nil {
-				log.Println(err)
-				t.Fail()
-			}
-		}
-
-		time.Sleep(1 * time.Second)
-	}
+	// array of {horizontal, vertical} sensor values
+	sensorsData := [][]int{{70, 0}, {60, 0}, {50, 0}, {40, 0}, {30, 0}, {20, 0}, {10, 0}, {5, 0}, {0, 15}, {0, 12}, {0, 9}, {0, 6}, {0, 3}, {0, 1}}
+	NUM := len(sensorsData)
 
 	for i := 0; i < NUM; i++ {
-		data, err := mqtt.Subscribe("Distance.Sensor.2", ch)
+		dist2 := sensorsData[i][1]
+		dist1 := sensorsData[i][0]
+
+		t.Logf(fmt.Sprintf("Publishing sensors distance%d %d", dist1, dist2))
+		err := mqtt.Publish("Distance.Sensors", strconv.Itoa(dist1)+" "+strconv.Itoa(dist2))
 		if err != nil {
 			log.Println(err)
-			t.Fatal(err)
+			t.Fail()
 		}
-		t.Log("Received data", data)
+
+		time.Sleep(500 * time.Millisecond)
 	}
+
+	// for i := 0; i < NUM; i++ {
+	// 	data, err := mqtt.Subscribe("Distance.Sensor.2", ch)
+	// 	if err != nil {
+	// 		log.Println(err)
+	// 		t.Fatal(err)
+	// 	}
+	// 	t.Log("Received data", data)
+	// }
 
 }

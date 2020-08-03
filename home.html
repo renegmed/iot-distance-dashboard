@@ -631,10 +631,7 @@ sodipodi:docname="parking.svg">
         <script type="text/javascript">
             var sockTime = null;
             var wsServerAddress = "ws://localhost:8080";
-            // var station = document.getElementById("station-1");
- 
-            //const offsetDistance = 18.8822; // min distance between car and distance sensor
-
+          
             const hBase = 70;  // max horizontal length of path
             const vBase = 50;  // max visiblity range for vertical path for this graph
             const maxRealVDistance = 15; // max sensor 1 distance (realworld) 
@@ -644,46 +641,38 @@ sodipodi:docname="parking.svg">
             let lastVDistance=0;
 
             window.onload = function() {
-                                
-                sockVDistance = new WebSocket(wsServerAddress + "/wsvdistance");
-                sockHDistance = new WebSocket(wsServerAddress + "/wshdistance");
-                
-                sockVDistance.onmessage = function(e) { 
-                    console.log("sockVDistance: ", e.data); 
-                    distance = e.data;
+               sockDistance = new WebSocket(wsServerAddress + "/wsdistance");   
 
-                    vehicle = document.getElementById("g316")  
-                    
-                    transformAttrValue="matrix(0.05630873,0,0,0.05496872," + (hBase-lastHDistance-(vehicleWidth/2)) + "," + (vDistance(distance) + (vehicleLength/2)) + ") "
-                    console.log("+++ transform:", transformAttrValue);
-                    
-                    vehicle.setAttribute("transform", transformAttrValue);  
-                    if (distance > 50) { // car too far for distance sensor                       
-                        vehicle.setAttribute("visibility", "hidden"); 
-                    } else {
-                        vehicle.setAttribute("visibility", "visible"); 
-                    }  
+               sockDistance.onmessage = function(e) { 
+                  console.log("sockDistance: ", e.data); 
+                  dist = e.data.split(" ")
+                  // dist[0] horizontal distance
+                  // dist[1] vertical distance
+ 
+                  vehicle = document.getElementById("g316")  
 
-                    lastVDistance = distance; 
-                }  
-                
-                sockHDistance.onmessage = function(e) { 
-                    console.log("sockHDistance: ", e.data); 
-                    distance = e.data; 
-                    vehicle = document.getElementById("g316")  
-                    
-                    transformAttrValue="matrix(0.05630873,0,0,0.05496872," + (hBase - distance) + ",80)  rotate(90,0,0)"
-                    console.log("+++ transform:", transformAttrValue);
-                    
-                    vehicle.setAttribute("transform", transformAttrValue);  
-                    if (distance > 70) { // car too far for distance sensor                       
-                        vehicle.setAttribute("visibility", "hidden"); 
-                    } else {
-                        vehicle.setAttribute("visibility", "visible"); 
-                    } 
+                  // horizontal
+                  if (dist[1] == 0) {  // if vertical = 0
+                     transformAttrValue="matrix(0.05630873,0,0,0.05496872," + (hBase - dist[0]) + ",80)  rotate(90,0,0)"
+                  }
+                  // vertical
+                  if (dist[0] ==0 ) {  // horizontal = 0
+                     transformAttrValue="matrix(0.05630873,0,0,0.05496872," + (hBase-lastHDistance-(vehicleWidth/2)) + "," + (vDistance(dist[1]) + (vehicleLength/2)) + ") "
+                  }
+                               
+                  
+                  console.log("+++ transform:", transformAttrValue);
+                  
+                  vehicle.setAttribute("transform", transformAttrValue);  
+                  if (dist[0] > 70 && dist[1] > 50) { // car too far for distance sensor                       
+                      vehicle.setAttribute("visibility", "hidden"); 
+                  } else {
+                      vehicle.setAttribute("visibility", "visible"); 
+                  }  
 
-                    lastHDistance = distance; 
-                }  
+                  lastHDistance = dist[0]; 
+                  lastVDistance = dist[1];  
+               }    
             } 
 
             vDistance = function(distance) {
