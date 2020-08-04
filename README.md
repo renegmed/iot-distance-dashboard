@@ -13,4 +13,4 @@ This app:
 	4. Using MQTT broker, the app sends and publishes messages, i.e., sensor distances
     5. Finally, the app displays graphically car in the process of parking in, in real-time (almost)
 
-![Car Parking Video](https://youtu.be/Hd5PZRDyrcg)
+[![Car Parking Video]](https://youtu.be/Hd5PZRDyrcg)
